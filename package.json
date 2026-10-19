@@ -1,0 +1,26 @@
+{
+  "name": "khyxx-digitals",
+  "version": "1.0.0",
+  "description": "Khyxx Digitals - Wedding Invitation and Digital Templates E-Commerce System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "echo 'Express app - no build needed'"
+  },
+  "keywords": [
+    "wedding-invitations",
+    "canva-templates",
+    "ecommerce"
+  ],
+  "author": "Khyxx Digitals",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

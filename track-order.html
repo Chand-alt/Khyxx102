@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <meta name="description" content="Track your wedding invitation and website order at Khyxx Digitals." />
+    <title>Track Your Order | Khyxx Digitals</title>
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Khyxx Digitals" />
+    <meta property="og:title" content="Track Your Order | Khyxx Digitals" />
+    <meta property="og:description" content="Track your wedding invitation and website order at Khyxx Digitals." />
+    <meta property="og:image" content="{{ORIGIN}}/store/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Italiana&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css?v=20261017-final" />
+  </head>
+  <body>
+    <div class="announcement">✦ NOW ACCEPTING CUSTOM WEDDING ORDERS FOR 2026 &amp; 2027 ✦</div>
+
+    <header class="site-header">
+      <a href="index.html" class="brand" aria-label="Khyxx Digitals home">
+        <span>Khyxx</span> Digitals
+        <small>digital products</small>
+      </a>
+
+      <button class="menu-toggle" aria-label="Open menu" aria-expanded="false">☰</button>
+
+      <nav class="nav" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="shop.html">Shop</a>
+        <a href="contact.html">Contact</a>
+        <a class="active" href="track-order.html">Track Order</a>
+      </nav>
+
+      <button class="cart-button" aria-label="Open shopping cart">
+        Bag <span class="cart-count">0</span>
+      </button>
+    </header>
+
+    <main class="track-page section-wrap">
+      <div class="track-header">
+        <p class="eyebrow">client portal</p>
+        <h1>Track Your Order</h1>
+        <p>Enter your order tracking code to check payment verification status, custom design progress, and access your Canva templates.</p>
+
+        <form id="track-search-form" class="track-search-box">
+          <input
+            type="text"
+            id="track-input"
+            name="orderId"
+            placeholder="e.g. KHYXX-7K2M-9QXA"
+            required
+            autocomplete="off"
+          />
+          <button type="submit" class="button button-dark">Search Order <span>→</span></button>
+        </form>
+      </div>
+
+      <!-- Loading Indicator -->
+      <div id="track-loading" class="track-state-box hidden">
+        <div class="spinner"></div>
+        <p>Retrieving your order details...</p>
+      </div>
+
+      <!-- Error State -->
+      <div id="track-error" class="track-state-box error-box hidden">
+        <h3>Order Not Found</h3>
+        <p id="track-error-msg">We couldn't find an order matching that code. Please verify your order ID from your confirmation screen or reach out to us on Instagram/TikTok.</p>
+      </div>
+
+      <!-- Order Result Container -->
+      <div id="track-result" class="track-result-card hidden">
+        <div class="order-topbar">
+          <div>
+            <span class="badge" id="order-status-badge">Status</span>
+            <h2 id="order-id-display">KHYXX-XXXX-XXXX</h2>
+            <p class="order-date-text" id="order-date-display"></p>
+          </div>
+          <div class="order-total-block">
+            <small>Order Total</small>
+            <strong id="order-total-display">₱0</strong>
+          </div>
+        </div>
+
+        <!-- Progress Timeline -->
+        <div class="order-timeline">
+          <div class="timeline-step" id="step-placed">
+            <div class="step-circle">1</div>
+            <p>Order Placed</p>
+          </div>
+          <div class="timeline-step" id="step-payment">
+            <div class="step-circle">2</div>
+            <p>Payment Verification</p>
+          </div>
+          <div class="timeline-step" id="step-processing">
+            <div class="step-circle">3</div>
+            <p>Customizing / In Progress</p>
+          </div>
+          <div class="timeline-step" id="step-completed">
+            <div class="step-circle">4</div>
+            <p>Ready & Delivered</p>
+          </div>
+        </div>
+
+        <!-- Two Column Layout: Event Details & Fulfillment -->
+        <div class="order-grid">
+          <!-- Left: Order & Couple Details -->
+          <div class="order-details-card">
+            <h3>Celebration & Order Details</h3>
+            <div class="info-row">
+              <span class="info-label">Client Name:</span>
+              <strong id="client-name">-</strong>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Email:</span>
+              <span id="client-email">-</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Couple Names:</span>
+              <strong id="couple-names" style="color: var(--wine);">-</strong>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Wedding Date:</span>
+              <span id="wedding-date">-</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Facebook/Social:</span>
+              <span id="client-fb">-</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Special Notes:</span>
+              <p id="client-notes" class="client-notes-text">-</p>
+            </div>
+
+            <h4 style="margin-top: 24px; margin-bottom: 12px; color: var(--wine);">Items in this order</h4>
+            <div id="order-items-list" class="order-items-list"></div>
+          </div>
+
+          <!-- Right: Payment Status & Digital Downloads -->
+          <div class="order-action-card">
+            <!-- Unlocked Downloads Section (when paid/completed) -->
+            <div id="digital-delivery-box" class="digital-box hidden">
+              <div class="delivery-header">
+                <span class="sparkle-icon">✦</span>
+                <h3>Your Digital Goods Are Ready!</h3>
+                <p>Click below to open and edit your Canva templates, and download your printing guide.</p>
+              </div>
+
+              <div class="template-links-list" id="template-links-container"></div>
+
+              <div class="guides-section">
+                <h4>Helpful Resources</h4>
+                <div class="guide-item">
+                  <div>
+                    <strong>Canva Editing Tutorial (PDF)</strong>
+                    <p>Learn how to change typography, replace photos, and adjust colors.</p>
+                  </div>
+                  <a href="guides/Canva_Editing_Guide.pdf" target="_blank" class="button secondary">Download</a>
+                </div>
+                <div class="guide-item">
+                  <div>
+                    <strong>Printing Recommendations</strong>
+                    <p>Paper GSM weights, textures (linen/matte), and Philippine print shops.</p>
+                  </div>
+                  <a href="guides/Printing_Recommendations.pdf" target="_blank" class="button secondary">Download</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment & Proof Box (when pending) -->
+            <div id="payment-instruction-box" class="payment-box">
+              <h3>Payment Instructions</h3>
+              <p>To finalize your order and unlock your templates, please send payment through either GCash or Bank Transfer:</p>
+
+              <div class="payment-tabs-box">
+                <div class="payment-method-card">
+                  <div class="payment-method-title">
+                    <strong>GCash</strong>
+                    <span class="method-tag">Fastest</span>
+                  </div>
+                  <p>Account Name: <strong>Shintal Khye Dichos</strong></p>
+                  <p>GCash Number: <strong class="copyable-text" onclick="navigator.clipboard.writeText('09565682259'); alert('GCash number copied!');">0956 568 2259 📋</strong></p>
+                </div>
+
+                <div class="payment-method-card">
+                  <div class="payment-method-title">
+                    <strong>BPI</strong>
+                  </div>
+                  <p>Account Name: <strong>Shintal Khye Talaid Dichos</strong></p>
+                  <p>Account Number: <strong class="copyable-text" onclick="navigator.clipboard.writeText('4046641904'); alert('BPI account number copied!');">4046 6419 04 📋</strong></p>
+                </div>
+              </div>
+
+              <div style="text-align: center; margin: 18px 0;">
+                <p style="font-size: 0.9rem; font-weight: 600; color: var(--wine); margin-bottom: 8px;">Scan to Pay (InstaPay QR)</p>
+                <a href="store/mop.png" target="_blank" title="Click to view full size">
+                  <img src="store/mop.png" alt="Khyxx Digitals Payment QR - BPI & GCash" style="max-width: 280px; width: 100%; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: pointer;" />
+                </a>
+                <p style="font-size: 0.75rem; color: #888; margin-top: 4px;">Tap QR code to enlarge</p>
+              </div>
+
+              <!-- Upload Payment Proof Form -->
+              <form id="payment-proof-form" class="payment-proof-form">
+                <h4>Submit Proof of Payment</h4>
+                <p>Already paid? Enter your reference number and/or upload a screenshot of your transfer slip so we can immediately verify it.</p>
+
+                <label>
+                  <span>GCash / Bank Reference Number</span>
+                  <input type="text" name="referenceNumber" id="proof-ref-input" placeholder="e.g. 902184918231" />
+                </label>
+
+                <label>
+                  <span>Upload Screenshot (Receipt / Transfer Slip)</span>
+                  <input type="file" name="receipt" id="proof-file-input" accept="image/*" />
+                </label>
+
+                <button type="submit" class="button button-dark" id="proof-submit-btn">
+                  Submit Payment Proof <span>→</span>
+                </button>
+                <p id="proof-status-msg" class="proof-status" aria-live="polite"></p>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <a href="index.html" class="brand">
+        <span>Khyxx</span> Digitals
+        <small>digital products</small>
+      </a>
+
+      <p>KHYXX DIGITALS ✦<br>
+      Creating digital invitations for life’s most special moments. Every template is thoughtfully crafted with love, creativity, and excitement, turning your celebrations into something beautifully unforgettable.</p>
+      
+      <div class="footer-contact">
+        <p><strong>Location:</strong> Quezon Province</p>
+        <p><strong>Email:</strong> <a href="mailto:shintalkhy@gmail.com">shintalkhy@gmail.com</a>
+        <p><strong>Contact:</strong> +63 926 7233 515</p>
+
+        <div class="social-icons">
+          <a class="social-icon facebook" href="https://www.facebook.com/share/196Nm6DMZN/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="24" height="24" />
+          </a>
+          <a class="social-icon instagram" href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733558.png" alt="Instagram" width="24" height="24" />
+          </a>
+          <a class="social-icon tiktok" href="https://www.tiktok.com/@khyxx_digitals" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+            <img src="https://pngimg.com/uploads/tiktok/tiktok_PNG24.png" alt="TikTok" width="24" height="24" />
+          </a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <small>© 2026 Khyxx Digitals. All rights reserved.</small>
+        <div class="footer-links">
+          <a href="track-order.html">Track Order</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Cart Drawer -->
+    <aside class="cart-drawer" aria-hidden="true">
+      <div class="cart-top">
+        <h2>Your bag</h2>
+        <button class="close-cart" aria-label="Close cart">×</button>
+      </div>
+      <div class="cart-items">
+        <p class="empty">Your bag is waiting for something lovely.</p>
+      </div>
+      <div class="cart-footer">
+        <p>Total <strong class="cart-total">₱0</strong></p>
+        <button class="button button-dark checkout">Continue to checkout <span>→</span></button>
+      </div>
+    </aside>
+
+    <div class="overlay"></div>
+
+    <script src="java.js"></script>
+    <script>
+      // Tracking Page Logic
+      const trackForm = document.getElementById('track-search-form');
+      const trackInput = document.getElementById('track-input');
+      const trackLoading = document.getElementById('track-loading');
+      const trackError = document.getElementById('track-error');
+      const trackErrorMsg = document.getElementById('track-error-msg');
+      const trackResult = document.getElementById('track-result');
+      const proofForm = document.getElementById('payment-proof-form');
+      const proofStatusMsg = document.getElementById('proof-status-msg');
+
+      let currentTrackedId = null;
+
+      async function fetchOrder(orderId) {
+        if (!orderId) return;
+        currentTrackedId = orderId.trim();
+
+        trackLoading.classList.remove('hidden');
+        trackError.classList.add('hidden');
+        trackResult.classList.add('hidden');
+
+        try {
+          const res = await fetch(`/api/orders/${encodeURIComponent(currentTrackedId)}`);
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Order not found');
+          }
+          const order = await res.json();
+          renderTrackedOrder(order);
+        } catch (err) {
+          trackLoading.classList.add('hidden');
+          trackError.classList.remove('hidden');
+          trackErrorMsg.textContent = err.message || 'We could not find an order matching that ID.';
+        }
+      }
+
+      function renderTrackedOrder(order) {
+        trackLoading.classList.add('hidden');
+        trackResult.classList.remove('hidden');
+
+        document.getElementById('order-id-display').textContent = order.id;
+        document.getElementById('order-date-display').textContent = 'Placed on ' + new Date(order.createdAt).toLocaleDateString('en-PH', {
+          year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+        document.getElementById('order-total-display').textContent = `₱${Number(order.total || 0).toLocaleString()}`;
+
+        // Status Badge & Timeline
+        const badge = document.getElementById('order-status-badge');
+        badge.className = `badge badge-${order.status}`;
+        const statusLabels = {
+          'pending_payment': 'Payment Required',
+          'payment_submitted': 'Verification In Progress',
+          'paid': 'Payment Confirmed',
+          'processing': 'Customizing Design',
+          'completed': 'Completed & Delivered',
+          'cancelled': 'Cancelled'
+        };
+        badge.textContent = statusLabels[order.status] || order.status;
+
+        // Steps update
+        const steps = ['placed', 'payment', 'processing', 'completed'];
+        steps.forEach(s => document.getElementById(`step-${s}`)?.classList.remove('active', 'done'));
+
+        document.getElementById('step-placed')?.classList.add('done');
+
+        if (order.status === 'payment_submitted') {
+          document.getElementById('step-payment')?.classList.add('active');
+        } else if (order.status === 'paid' || order.status === 'processing') {
+          document.getElementById('step-payment')?.classList.add('done');
+          document.getElementById('step-processing')?.classList.add('active');
+        } else if (order.status === 'completed') {
+          document.getElementById('step-payment')?.classList.add('done');
+          document.getElementById('step-processing')?.classList.add('done');
+          document.getElementById('step-completed')?.classList.add('done');
+        }
+
+        // Details
+        document.getElementById('client-name').textContent = order.customer.name;
+        document.getElementById('client-email').textContent = order.customer.email;
+        document.getElementById('couple-names').textContent = order.event.coupleNames || 'Not specified';
+        document.getElementById('wedding-date').textContent = order.event.weddingDate || 'Not specified';
+        document.getElementById('client-fb').innerHTML = order.event.facebookLink ? `<a href="${esc(order.event.facebookLink)}" target="_blank" rel="noopener noreferrer">Link</a>` : 'None';
+        document.getElementById('client-notes').textContent = order.event.content || 'None provided';
+
+        // Items list
+        const itemsList = document.getElementById('order-items-list');
+        itemsList.innerHTML = order.items.map(item => `
+          <div class="tracked-item-row">
+            <div>
+              <strong>${esc(item.name)}</strong>
+              <small class="item-qty">Qty: ${item.quantity || 1}</small>
+            </div>
+            <span>₱${Number(item.price * (item.quantity || 1)).toLocaleString()}</span>
+          </div>
+        `).join('');
+
+        // Digital fulfillment vs payment instructions
+        const deliveryBox = document.getElementById('digital-delivery-box');
+        const paymentBox = document.getElementById('payment-instruction-box');
+
+        if (order.status === 'paid' || order.status === 'completed') {
+          deliveryBox.classList.remove('hidden');
+          paymentBox.classList.add('hidden');
+
+          const linksContainer = document.getElementById('template-links-container');
+          if (order.templateLinks && order.templateLinks.length) {
+            linksContainer.innerHTML = order.templateLinks.map(l => `
+              <div class="template-access-card">
+                <div>
+                  <strong>${esc(l.name)}</strong>
+                  <p>Access your editable Canva project template</p>
+                </div>
+                <a href="${esc(l.url)}" target="_blank" rel="noopener noreferrer" class="button button-dark">Open in Canva <span>→</span></a>
+              </div>
+            `).join('');
+          } else {
+            linksContainer.innerHTML = '<p>Your Canva links are being personalized by our designer. Check back shortly!</p>';
+          }
+        } else {
+          deliveryBox.classList.add('hidden');
+          paymentBox.classList.remove('hidden');
+          if (order.paymentReference) {
+            document.getElementById('proof-ref-input').value = order.paymentReference;
+          }
+        }
+      }
+
+      trackForm?.addEventListener('submit', event => {
+        event.preventDefault();
+        const id = trackInput.value.trim();
+        if (!id) return;
+        history.replaceState(null, '', `?id=${encodeURIComponent(id)}`);
+        fetchOrder(id);
+      });
+
+      // Proof form submit
+      proofForm?.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (!currentTrackedId) return;
+
+        const btn = document.getElementById('proof-submit-btn');
+        btn.disabled = true;
+        btn.textContent = 'Uploading proof...';
+        proofStatusMsg.textContent = '';
+
+        const formData = new FormData(proofForm);
+        const chosen = formData.get('receipt');
+        if (chosen && chosen.size) {
+          formData.set('receipt', await window.khyxxCompressImage(chosen), 'receipt.jpg');
+        } else {
+          formData.delete('receipt');
+        }
+
+        try {
+          const res = await fetch(`/api/orders/${encodeURIComponent(currentTrackedId)}/payment`, {
+            method: 'POST',
+            body: formData
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed to submit proof');
+
+          proofStatusMsg.className = 'proof-status success';
+          proofStatusMsg.textContent = '✓ Payment details uploaded! We will verify and release your templates.';
+          fetchOrder(currentTrackedId);
+        } catch (err) {
+          proofStatusMsg.className = 'proof-status error';
+          proofStatusMsg.textContent = err.message || 'Error uploading payment details.';
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = 'Submit Payment Proof <span>→</span>';
+        }
+      });
+
+      // Check URL parameters for ?id=
+      window.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        if (id) {
+          trackInput.value = id;
+          fetchOrder(id);
+        }
+      });
+    </script>
+  </body>
+</html>

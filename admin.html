@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <title>Admin Portal | Khyxx Digitals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Italiana&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css?v=20261017-final" />
+  </head>
+  <body class="admin-body">
+    <!-- Admin Login Modal -->
+    <div id="admin-auth-modal" class="admin-auth-modal">
+      <div class="auth-card">
+        <div class="auth-brand"><span>Khyxx</span> Digitals<small>admin portal</small></div>
+        <h2>Owner Sign In</h2>
+        <p>Please enter your store master PIN to manage orders and inquiries.</p>
+        <form id="admin-login-form">
+          <label>
+            <span>Master PIN</span>
+            <input type="password" id="admin-pin-input" placeholder="••••••••" required autocomplete="current-password" />
+          </label>
+          <p id="admin-auth-error" class="auth-error"></p>
+          <button type="submit" class="button button-dark" style="width: 100%; margin-top: 15px;">Unlock Dashboard <span>→</span></button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main Admin Container -->
+    <div id="admin-app" class="admin-app hidden">
+      <!-- Admin Topbar -->
+      <header class="admin-header">
+        <div class="admin-brand-wrap">
+          <a href="index.html" class="brand" title="View Storefront">
+            <span>Khyxx</span> Digitals
+            <small>management dashboard</small>
+          </a>
+        </div>
+
+        <nav class="admin-tabs-nav">
+          <button class="admin-nav-btn active" data-tab="overview">Overview</button>
+          <button class="admin-nav-btn" data-tab="orders">Orders <span id="orders-badge" class="nav-count-badge">0</span></button>
+          <button class="admin-nav-btn" data-tab="inquiries">Inquiries <span id="inquiries-badge" class="nav-count-badge">0</span></button>
+          <button class="admin-nav-btn" data-tab="settings">Payment & Settings</button>
+        </nav>
+
+        <div class="admin-user-actions">
+          <a href="index.html" target="_blank" class="button secondary view-site-btn">View Store ↗</a>
+          <button id="admin-logout-btn" class="button button-dark logout-btn">Log Out</button>
+        </div>
+      </header>
+
+      <main class="admin-main">
+        <!-- 1. OVERVIEW TAB -->
+        <section id="tab-overview" class="admin-tab-pane active">
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <span class="kpi-icon">₱</span>
+              <div>
+                <small>Total Revenue</small>
+                <h3 id="stat-revenue">₱0</h3>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <span class="kpi-icon">🛍️</span>
+              <div>
+                <small>Total Orders</small>
+                <h3 id="stat-orders">0</h3>
+              </div>
+            </div>
+
+            <div class="kpi-card highlight-card">
+              <span class="kpi-icon">⏳</span>
+              <div>
+                <small>Pending Verification</small>
+                <h3 id="stat-pending">0</h3>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <span class="kpi-icon">💌</span>
+              <div>
+                <small>New Inquiries</small>
+                <h3 id="stat-inquiries">0</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Orders Section -->
+          <div class="admin-card" style="margin-top: 24px;">
+            <div class="card-header-flex">
+              <div>
+                <h3 style="margin-bottom: 4px; color: var(--wine);">Recent Orders</h3>
+                <p style="font-size: 0.85rem; color: #87777a; margin: 0;">Latest customer purchases and requests.</p>
+              </div>
+              <button class="button secondary" onclick="document.querySelector('[data-tab=\'orders\']').click()">View All Orders →</button>
+            </div>
+            <div class="table-responsive" style="margin-top: 16px;">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Couple / Client</th>
+                    <th>Items</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="overview-orders-tbody">
+                  <tr><td colspan="7" style="text-align: center; padding: 24px;">Loading orders...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. ORDERS TAB -->
+        <section id="tab-orders" class="admin-tab-pane">
+          <div class="admin-card">
+            <div class="orders-toolbar">
+              <div class="status-filters" id="orders-status-filters">
+                <button class="status-pill active" data-status="all">All</button>
+                <button class="status-pill" data-status="pending_payment">Pending</button>
+                <button class="status-pill" data-status="payment_submitted">Submitted Proof</button>
+                <button class="status-pill" data-status="paid">Paid</button>
+                <button class="status-pill" data-status="processing">Customizing</button>
+                <button class="status-pill" data-status="completed">Completed</button>
+              </div>
+
+              <input
+                type="text"
+                id="orders-search-input"
+                class="admin-search-input"
+                placeholder="Search by client, ID, couple..."
+              />
+            </div>
+
+            <div class="table-responsive" style="margin-top: 16px;">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Order Code</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Couple Names</th>
+                    <th>Items</th>
+                    <th>Amount</th>
+                    <th>Payment</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="orders-full-tbody">
+                  <tr><td colspan="9" style="text-align: center; padding: 24px;">Loading orders...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. INQUIRIES TAB -->
+        <section id="tab-inquiries" class="admin-tab-pane">
+          <div class="admin-card">
+            <div class="card-header-flex">
+              <div>
+                <h3 style="color: var(--wine);">Client Inquiries & Custom Requests</h3>
+                <p style="font-size: 0.85rem; color: #87777a; margin: 0;">Messages received from the contact form.</p>
+              </div>
+              <button class="button secondary" onclick="loadInquiries()">Refresh Inquiries ↻</button>
+            </div>
+
+            <div class="table-responsive" style="margin-top: 16px;">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Date</th>
+                    <th>Client Name</th>
+                    <th>Email</th>
+                    <th>Occasion</th>
+                    <th>Event Date</th>
+                    <th>Message</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="inquiries-tbody">
+                  <tr><td colspan="9" style="text-align: center; padding: 24px;">Loading inquiries...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. SETTINGS TAB -->
+        <section id="tab-settings" class="admin-tab-pane">
+          <div class="admin-card" style="max-width: 680px;">
+            <h3 style="color: var(--wine); margin-bottom: 6px;">Payment Account Details</h3>
+            <p style="font-size: 0.85rem; color: #87777a; margin-bottom: 20px;">
+              These details are displayed to clients on the checkout form and order tracking portal.
+            </p>
+
+            <form id="store-settings-form" class="admin-settings-form">
+              <div class="form-row">
+                <label>
+                  <span>GCash Number</span>
+                  <input type="text" name="gcashNumber" id="set-gcash-number" required />
+                </label>
+                <label>
+                  <span>GCash Account Name</span>
+                  <input type="text" name="gcashName" id="set-gcash-name" required />
+                </label>
+              </div>
+
+              <div class="form-row">
+                <label>
+                  <span>Bank Name</span>
+                  <input type="text" name="bankName" id="set-bank-name" placeholder="e.g. BDO Unibank / BPI" required />
+                </label>
+                <label>
+                  <span>Bank Account Number</span>
+                  <input type="text" name="bankAccount" id="set-bank-account" required />
+                </label>
+              </div>
+
+              <label>
+                <span>Bank Account Holder Name</span>
+                <input type="text" name="bankAccountName" id="set-bank-holder" required />
+              </label>
+
+              <div class="form-row" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #ebd7cb;">
+                <label>
+                  <span>Notification Email</span>
+                  <input type="email" name="contactEmail" id="set-contact-email" />
+                </label>
+              </div>
+
+              <p id="settings-status-msg" class="proof-status"></p>
+
+              <button type="submit" class="button button-dark" style="margin-top: 20px;">
+                Save Payment Settings <span>→</span>
+              </button>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Order Detail & Action Modal -->
+    <div id="order-detail-modal" class="checkout-modal hidden">
+      <div class="admin-detail-card">
+        <button class="close-checkout" id="close-order-modal" type="button">×</button>
+        <div class="admin-modal-top">
+          <span class="badge" id="modal-order-badge">Status</span>
+          <h2 id="modal-order-id">KHYXX-2026-0000</h2>
+          <p id="modal-order-date" style="font-size: 0.8rem; color: #87777a;"></p>
+        </div>
+
+        <div class="modal-grid">
+          <!-- Left Column -->
+          <div>
+            <h4 class="modal-subtitle">Customer & Celebration Info</h4>
+            <p><strong>Name:</strong> <span id="modal-cust-name">-</span></p>
+            <p><strong>Email:</strong> <span id="modal-cust-email">-</span></p>
+            <p><strong>Phone:</strong> <span id="modal-cust-phone">-</span></p>
+            <p><strong>Couple's Names:</strong> <span id="modal-couple-names" style="color: var(--wine); font-weight: 600;">-</span></p>
+            <p><strong>Wedding Date:</strong> <span id="modal-wedding-date">-</span></p>
+            <p><strong>Social / FB Link:</strong> <span id="modal-social-link">-</span></p>
+            <p><strong>Custom Notes:</strong></p>
+            <blockquote id="modal-cust-notes" class="modal-notes-box"></blockquote>
+
+            <h4 class="modal-subtitle" style="margin-top: 16px;">Ordered Items</h4>
+            <div id="modal-items-list" class="modal-items-list"></div>
+            <p style="margin-top: 10px; font-size: 1rem;"><strong>Total:</strong> <strong id="modal-total" style="color: var(--wine);">₱0</strong></p>
+          </div>
+
+          <!-- Right Column: Payment & Fulfillment -->
+          <div>
+            <h4 class="modal-subtitle">Payment Verification</h4>
+            <p><strong>Method:</strong> <span id="modal-payment-method">-</span></p>
+            <p><strong>Reference Number:</strong> <code id="modal-payment-ref" style="background:#f4ebdf; padding:3px 6px; border-radius:4px;">-</code></p>
+            
+            <div id="modal-receipt-container" style="margin-top: 10px;">
+              <small style="display:block; color:#87777a; margin-bottom:5px;">Receipt Screenshot:</small>
+              <div id="modal-receipt-preview" class="receipt-preview-box">
+                <span style="color: #a16d75; font-size: 0.8rem;">No receipt uploaded yet</span>
+              </div>
+            </div>
+
+            <h4 class="modal-subtitle" style="margin-top: 20px;">Manage Status</h4>
+            <div class="status-action-btns">
+              <button class="button secondary" onclick="updateCurrentOrderStatus('pending_payment')">Set Pending</button>
+              <button class="button secondary" onclick="updateCurrentOrderStatus('payment_submitted')">Set Proof Submitted</button>
+              <button class="button button-dark" style="background: #2e7d32;" onclick="updateCurrentOrderStatus('paid')">✓ Mark Paid</button>
+              <button class="button button-dark" style="background: var(--wine);" onclick="updateCurrentOrderStatus('completed')">★ Mark Completed</button>
+              <button class="button secondary" style="color: #c62828;" onclick="updateCurrentOrderStatus('cancelled')">Cancel Order</button>
+            </div>
+
+            <h4 class="modal-subtitle" style="margin-top: 20px;">Admin Internal Notes</h4>
+            <textarea id="modal-admin-notes" class="admin-notes-textarea" placeholder="Internal notes (e.g. verified on GCash, Canva draft sent)..."></textarea>
+            <button class="button secondary" style="margin-top: 6px;" onclick="saveCurrentOrderNotes()">Save Notes</button>
+
+            <h4 class="modal-subtitle" style="margin-top: 20px;">Delivery Link (Canva)</h4>
+            <p style="font-size: 0.78rem; color: #87777a; margin: 0 0 6px;">Optional. Paste this customer's Canva template link. Leave it empty to use the product's default link from <code>data/products.json</code>. Customers only see it after the order is marked Paid.</p>
+            <input type="url" id="modal-delivery-link" placeholder="https://www.canva.com/design/.../use" style="width: 100%; padding: 8px; border: 1px solid #dec4b6; border-radius: 4px;" />
+            <button class="button secondary" style="margin-top: 6px;" onclick="saveDeliveryLink()">Save Link</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Admin Portal JavaScript
+      let adminToken = localStorage.getItem('khyxx_admin_token');
+      let allOrders = [];
+      let currentModalOrder = null;
+      function esc(v) { return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+      const authModal = document.getElementById('admin-auth-modal');
+      const adminApp = document.getElementById('admin-app');
+      const loginForm = document.getElementById('admin-login-form');
+      const pinInput = document.getElementById('admin-pin-input');
+      const authError = document.getElementById('admin-auth-error');
+
+      // Check auth on load
+      function checkAuth() {
+        if (adminToken) {
+          authModal.classList.add('hidden');
+          adminApp.classList.remove('hidden');
+          loadDashboard();
+        } else {
+          authModal.classList.remove('hidden');
+          adminApp.classList.add('hidden');
+        }
+      }
+
+      loginForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        authError.textContent = '';
+        const pin = pinInput.value.trim();
+
+        try {
+          const res = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pin })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Invalid PIN');
+
+          localStorage.setItem('khyxx_admin_token', data.token);
+          adminToken = data.token;
+          checkAuth();
+        } catch (err) {
+          authError.textContent = err.message;
+        }
+      });
+
+      document.getElementById('admin-logout-btn').addEventListener('click', () => {
+        localStorage.removeItem('khyxx_admin_token');
+        adminToken = null;
+        checkAuth();
+      });
+
+      // Tab Switching
+      document.querySelectorAll('.admin-nav-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.admin-nav-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.admin-tab-pane').forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+          const tab = btn.dataset.tab;
+          document.getElementById(`tab-${tab}`).classList.add('active');
+
+          if (tab === 'orders') loadOrders();
+          if (tab === 'inquiries') loadInquiries();
+          if (tab === 'settings') loadSettings();
+        });
+      });
+
+      async function adminFetch(url, options = {}) {
+        options.headers = {
+          ...options.headers,
+          'Authorization': `Bearer ${adminToken}`
+        };
+        const res = await fetch(url, options);
+        if (res.status === 401) {
+          localStorage.removeItem('khyxx_admin_token');
+          adminToken = null;
+          checkAuth();
+          throw new Error('Session expired');
+        }
+        return res;
+      }
+
+      async function loadDashboard() {
+        try {
+          const res = await adminFetch('/api/admin/stats');
+          const stats = await res.json();
+
+          document.getElementById('stat-revenue').textContent = `₱${Number(stats.totalRevenue || 0).toLocaleString()}`;
+          document.getElementById('stat-orders').textContent = stats.orderCount || 0;
+          document.getElementById('stat-pending').textContent = stats.pendingOrders || 0;
+          document.getElementById('stat-inquiries').textContent = stats.unreadInquiries || 0;
+
+          document.getElementById('orders-badge').textContent = stats.orderCount || 0;
+          document.getElementById('inquiries-badge').textContent = stats.unreadInquiries || 0;
+
+          loadRecentOrders();
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      async function loadRecentOrders() {
+        try {
+          const res = await adminFetch('/api/admin/orders');
+          allOrders = await res.json();
+          renderOverviewTable(allOrders.slice(0, 5));
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      function renderOverviewTable(orders) {
+        const tbody = document.getElementById('overview-orders-tbody');
+        if (!orders.length) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 24px;">No orders found yet.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = orders.map(o => `
+          <tr>
+            <td><strong>${esc(o.id)}</strong></td>
+            <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+            <td>${o.event?.coupleNames ? `<strong>${esc(o.event.coupleNames)}</strong><br><small>${esc(o.customer.name)}</small>` : esc(o.customer.name)}</td>
+            <td>${esc(o.items.map(i => i.name).join(', '))}</td>
+            <td><strong>₱${Number(o.total).toLocaleString()}</strong></td>
+            <td><span class="badge badge-${o.status}">${formatStatus(o.status)}</span></td>
+            <td><button class="button secondary" style="padding: 4px 10px; font-size: 0.7rem;" onclick="openOrderDetail('${esc(o.id)}')">Manage</button></td>
+          </tr>
+        `).join('');
+      }
+
+      async function loadOrders() {
+        try {
+          const res = await adminFetch('/api/admin/orders');
+          allOrders = await res.json();
+          renderOrdersTable(allOrders);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      function renderOrdersTable(orders) {
+        const tbody = document.getElementById('orders-full-tbody');
+        if (!orders.length) {
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 24px;">No orders match this filter.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = orders.map(o => `
+          <tr>
+            <td><strong>${esc(o.id)}</strong></td>
+            <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+            <td>${esc(o.customer.name)}<br><small style="color:#87777a;">${esc(o.customer.email)}</small></td>
+            <td><strong style="color:var(--wine);">${esc(o.event.coupleNames || 'N/A')}</strong><br><small>${esc(o.event.weddingDate || '')}</small></td>
+            <td>${o.items.map(i => `${esc(i.name)} (x${i.quantity || 1})`).join('<br>')}</td>
+            <td><strong>₱${Number(o.total).toLocaleString()}</strong></td>
+            <td><span class="method-tag">${(o.paymentMethod || 'gcash').toUpperCase()}</span><br><small>${esc(o.paymentReference || 'No ref')}</small></td>
+            <td><span class="badge badge-${o.status}">${formatStatus(o.status)}</span></td>
+            <td>
+              <button class="button secondary" style="padding: 5px 12px; font-size: 0.72rem;" onclick="openOrderDetail('${esc(o.id)}')">Details</button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // Filter status buttons
+      document.querySelectorAll('#orders-status-filters .status-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          document.querySelectorAll('#orders-status-filters .status-pill').forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          const status = pill.dataset.status;
+          const filtered = status === 'all' ? allOrders : allOrders.filter(o => o.status === status);
+          renderOrdersTable(filtered);
+        });
+      });
+
+      // Search Orders
+      document.getElementById('orders-search-input')?.addEventListener('input', event => {
+        const q = event.target.value.toLowerCase().trim();
+        const filtered = allOrders.filter(o =>
+          o.id.toLowerCase().includes(q) ||
+          o.customer.name.toLowerCase().includes(q) ||
+          o.customer.email.toLowerCase().includes(q) ||
+          (o.event?.coupleNames && o.event.coupleNames.toLowerCase().includes(q))
+        );
+        renderOrdersTable(filtered);
+      });
+
+      // Order Detail Modal
+      function openOrderDetail(orderId) {
+        const order = allOrders.find(o => o.id === orderId);
+        if (!order) return;
+        currentModalOrder = order;
+
+        document.getElementById('modal-order-id').textContent = order.id;
+        document.getElementById('modal-order-date').textContent = new Date(order.createdAt).toLocaleString();
+        document.getElementById('modal-order-badge').className = `badge badge-${order.status}`;
+        document.getElementById('modal-order-badge').textContent = formatStatus(order.status);
+
+        document.getElementById('modal-cust-name').textContent = order.customer.name;
+        document.getElementById('modal-cust-email').innerHTML = `<a href="mailto:${esc(order.customer.email)}">${esc(order.customer.email)}</a>`;
+        document.getElementById('modal-cust-phone').textContent = order.customer.phone || 'None';
+        document.getElementById('modal-couple-names').textContent = order.event.coupleNames || 'Not specified';
+        document.getElementById('modal-wedding-date').textContent = order.event.weddingDate || 'Not specified';
+        document.getElementById('modal-social-link').innerHTML = order.event.facebookLink ? `<a href="${esc(order.event.facebookLink)}" target="_blank" rel="noopener">${esc(order.event.facebookLink)}</a>` : 'None';
+        document.getElementById('modal-cust-notes').textContent = order.event.content || 'No custom notes provided.';
+
+        document.getElementById('modal-total').textContent = `₱${Number(order.total).toLocaleString()}`;
+        document.getElementById('modal-payment-method').textContent = (order.paymentMethod || 'gcash').toUpperCase();
+        document.getElementById('modal-payment-ref').textContent = order.paymentReference || 'No reference submitted';
+
+        // Items list
+        document.getElementById('modal-items-list').innerHTML = order.items.map(i => `
+          <div style="display:flex; justify-content:space-between; margin-bottom: 4px; font-size: 0.85rem;">
+            <span>${esc(i.name)} (x${i.quantity || 1})</span>
+            <strong>₱${Number(i.price * (i.quantity || 1)).toLocaleString()}</strong>
+          </div>
+        `).join('');
+
+        // Receipt Preview (loaded with the admin session; receipts are not public files)
+        const receiptBox = document.getElementById('modal-receipt-preview');
+        if (order.hasReceipt) {
+          receiptBox.textContent = 'Loading receipt…';
+          adminFetch(`/api/admin/orders/${encodeURIComponent(order.id)}/receipt`)
+            .then(r => (r.ok ? r.blob() : Promise.reject(new Error('missing'))))
+            .then(blob => {
+              if (currentModalOrder !== order) return;
+              const url = URL.createObjectURL(blob);
+              receiptBox.innerHTML = `
+                <a href="${url}" target="_blank" title="Click to view full image">
+                  <img src="${url}" alt="Payment Receipt" style="max-height: 180px; max-width: 100%; border-radius: 4px; border: 1px solid #dec4b6;" />
+                </a>
+                <small style="display:block; margin-top: 4px;"><a href="${url}" target="_blank">Open full image ↗</a></small>
+              `;
+            })
+            .catch(() => { receiptBox.innerHTML = '<span style="color: #a16d75; font-size: 0.8rem;">Could not load the receipt image</span>'; });
+        } else {
+          receiptBox.innerHTML = '<span style="color: #a16d75; font-size: 0.8rem;">No receipt image uploaded yet</span>';
+        }
+
+        document.getElementById('modal-admin-notes').value = order.adminNotes || '';
+        document.getElementById('modal-delivery-link').value = (order.templateLinks && order.templateLinks[0] && order.templateLinks[0].url) || '';
+        document.getElementById('order-detail-modal').classList.remove('hidden');
+      }
+
+      document.getElementById('close-order-modal').addEventListener('click', () => {
+        document.getElementById('order-detail-modal').classList.add('hidden');
+      });
+
+      async function updateCurrentOrderStatus(newStatus) {
+        if (!currentModalOrder) return;
+        try {
+          const res = await adminFetch(`/api/admin/orders/${currentModalOrder.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Failed to update status');
+
+          currentModalOrder.status = newStatus;
+          document.getElementById('modal-order-badge').className = `badge badge-${newStatus}`;
+          document.getElementById('modal-order-badge').textContent = formatStatus(newStatus);
+          loadDashboard();
+          loadOrders();
+        } catch (err) {
+          alert('Error updating status: ' + err.message);
+        }
+      }
+
+      async function saveDeliveryLink() {
+        if (!currentModalOrder) return;
+        const url = document.getElementById('modal-delivery-link').value.trim();
+        const links = url ? [{ name: 'Your Canva template', url }] : [];
+        try {
+          const res = await adminFetch(`/api/admin/orders/${encodeURIComponent(currentModalOrder.id)}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ templateLinks: links })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Could not save link');
+          currentModalOrder.templateLinks = links;
+          alert('Delivery link saved!');
+        } catch (err) {
+          alert('Error: ' + err.message);
+        }
+      }
+
+      async function saveCurrentOrderNotes() {
+        if (!currentModalOrder) return;
+        const notes = document.getElementById('modal-admin-notes').value;
+        try {
+          const res = await adminFetch(`/api/admin/orders/${currentModalOrder.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ adminNotes: notes })
+          });
+          if (res.ok) alert('Notes saved!');
+        } catch (err) {
+          alert('Error: ' + err.message);
+        }
+      }
+
+      // Inquiries
+      async function loadInquiries() {
+        try {
+          const res = await adminFetch('/api/admin/inquiries');
+          const inquiries = await res.json();
+          renderInquiriesTable(inquiries);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      function renderInquiriesTable(inquiries) {
+        const tbody = document.getElementById('inquiries-tbody');
+        if (!inquiries.length) {
+          tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 24px;">No inquiries found.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = inquiries.map(i => `
+          <tr>
+            <td><strong>${esc(i.id)}</strong></td>
+            <td>${new Date(i.createdAt).toLocaleDateString()}</td>
+            <td><strong>${esc(i.name)}</strong></td>
+            <td><a href="mailto:${esc(i.email)}">${esc(i.email)}</a></td>
+            <td><span class="method-tag">${esc(i.eventType)}</span></td>
+            <td>${esc(i.eventDate || 'N/A')}</td>
+            <td style="max-width: 250px; font-size: 0.8rem;">${esc(i.message)}</td>
+            <td><span class="badge badge-${i.status === 'replied' ? 'paid' : 'pending_payment'}">${i.status.toUpperCase()}</span></td>
+            <td>
+              <a class="button secondary" style="padding: 4px 8px; font-size: 0.68rem;" href="mailto:${esc(i.email)}?subject=Khyxx Digitals Wedding Inquiry" onclick="markInquiryReplied('${esc(i.id)}')">Reply ✉</a>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      async function markInquiryReplied(id) {
+        try {
+          await adminFetch(`/api/admin/inquiries/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'replied' })
+          });
+          loadInquiries();
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      // Settings
+      async function loadSettings() {
+        try {
+          const res = await fetch('/api/settings');
+          const settings = await res.json();
+          document.getElementById('set-gcash-number').value = settings.gcashNumber || '';
+          document.getElementById('set-gcash-name').value = settings.gcashName || '';
+          document.getElementById('set-bank-name').value = settings.bankName || '';
+          document.getElementById('set-bank-account').value = settings.bankAccount || '';
+          document.getElementById('set-bank-holder').value = settings.bankAccountName || '';
+          document.getElementById('set-contact-email').value = settings.contactEmail || '';
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      document.getElementById('store-settings-form')?.addEventListener('submit', async event => {
+        event.preventDefault();
+        const statusMsg = document.getElementById('settings-status-msg');
+        statusMsg.textContent = 'Saving...';
+
+        const payload = {
+          gcashNumber: document.getElementById('set-gcash-number').value.trim(),
+          gcashName: document.getElementById('set-gcash-name').value.trim(),
+          bankName: document.getElementById('set-bank-name').value.trim(),
+          bankAccount: document.getElementById('set-bank-account').value.trim(),
+          bankAccountName: document.getElementById('set-bank-holder').value.trim(),
+          contactEmail: document.getElementById('set-contact-email').value.trim()
+        };
+
+        try {
+          const res = await adminFetch('/api/admin/settings', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) throw new Error('Failed to save settings');
+          statusMsg.className = 'proof-status success';
+          statusMsg.textContent = '✓ Store payment settings updated successfully!';
+        } catch (err) {
+          statusMsg.className = 'proof-status error';
+          statusMsg.textContent = err.message;
+        }
+      });
+
+      function formatStatus(status) {
+        const labels = {
+          'pending_payment': 'Pending',
+          'payment_submitted': 'Proof Submitted',
+          'paid': 'Paid',
+          'processing': 'Customizing',
+          'completed': 'Delivered',
+          'cancelled': 'Cancelled'
+        };
+        return labels[status] || status;
+      }
+
+      window.addEventListener('DOMContentLoaded', checkAuth);
+    </script>
+  </body>
+</html>
